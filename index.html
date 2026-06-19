@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>투두가든 (Todo Garden) - 식물 성장형 투두리스트</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-day">
+    <!-- background decorative garden elements -->
+    <div class="bg-glow"></div>
+    <div class="bg-bubble bubble-1"></div>
+    <div class="bg-bubble bubble-2"></div>
+    <div class="bg-bubble bubble-3"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-logo">
+                <span class="logo-emoji">🌱</span>
+                <h1>투두가든 <span class="logo-sub">Todo Garden</span></h1>
+            </div>
+            <div class="header-controls">
+                <button id="btn-theme" class="control-btn" title="테마 변경" aria-label="테마 변경">
+                    <span class="theme-icon">☀️</span>
+                </button>
+                <button id="btn-sound" class="control-btn" title="소리 켜기/끄기" aria-label="소리 켜기/끄기">
+                    <span class="sound-icon">🔊</span>
+                </button>
+                <button id="btn-reset" class="control-btn danger" title="정원 초기화" aria-label="정원 초기화">
+                    <span>🔄</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <!-- Left Column: Garden Viewport -->
+            <section class="garden-section glass-panel">
+                <div class="plant-header">
+                    <div class="plant-title-wrapper">
+                        <span id="plant-stage-badge" class="badge">Lv.1 새싹</span>
+                        <div class="plant-name-container">
+                            <h2 id="plant-name">초록이</h2>
+                            <button id="btn-rename" class="icon-btn" title="이름 바꾸기">✏️</button>
+                        </div>
+                    </div>
+                    <p id="plant-description" class="plant-desc">아직은 작고 소중한 아기 새싹입니다.</p>
+                </div>
+
+                <!-- Interactive Plant Canvas/SVG Container -->
+                <div class="garden-viewport" id="garden-viewport">
+                    <div class="sky-effects">
+                        <div class="sun-moon"></div>
+                        <div class="cloud cloud-1">☁️</div>
+                        <div class="cloud cloud-2">☁️</div>
+                    </div>
+                    
+                    <div class="plant-canvas-container" id="plant-touch-zone">
+                        <!-- Dynamic SVG plant will be injected here -->
+                        <div id="plant-svg-holder"></div>
+                    </div>
+                    
+                    <div class="garden-ground">
+                        <div class="soil-layer"></div>
+                        <div class="grass-layer"></div>
+                    </div>
+                    
+                    <div class="interaction-tip">식물을 터치하여 교감해보세요! ❤️</div>
+                </div>
+
+                <!-- XP Progress Bar -->
+                <div class="xp-container">
+                    <div class="xp-labels">
+                        <span class="xp-title">성장 경험치 (완료한 할 일)</span>
+                        <span id="xp-text" class="xp-val">0 / 3</span>
+                    </div>
+                    <div class="xp-bar-bg">
+                        <div id="xp-bar-fill" class="xp-bar-fill" style="width: 0%"></div>
+                        <div id="xp-marker-1" class="xp-marker" style="left: 33.3%" title="Lv.2 진화"></div>
+                        <div id="xp-marker-2" class="xp-marker" style="left: 66.6%" title="Lv.3 진화"></div>
+                        <div id="xp-marker-3" class="xp-marker" style="left: 100%" title="Lv.4 진화"></div>
+                    </div>
+                </div>
+
+                <!-- Garden Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-icon">✅</span>
+                        <div class="stat-info">
+                            <span class="stat-num" id="stat-total-completed">0</span>
+                            <span class="stat-label">총 완료한 일</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">🔥</span>
+                        <div class="stat-info">
+                            <span class="stat-num" id="stat-streak">0</span>
+                            <span class="stat-label">연속 달성일</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: Todo Panel -->
+            <section class="todo-section glass-panel">
+                <div class="todo-header">
+                    <h2>오늘의 정원 가꾸기 📝</h2>
+                    <div class="todo-summary">
+                        <span class="summary-item">남은 일 <strong id="todo-active-count">0</strong></span>
+                        <span class="summary-item">완료됨 <strong id="todo-completed-count">0</strong></span>
+                    </div>
+                </div>
+
+                <!-- Category Filtering -->
+                <div class="category-filter-wrapper">
+                    <button class="filter-btn active" data-filter="all">전체</button>
+                    <button class="filter-btn" data-filter="active">미완료</button>
+                    <button class="filter-btn" data-filter="completed">완료</button>
+                </div>
+
+                <!-- Todo Input Form -->
+                <form id="todo-form" class="todo-form">
+                    <div class="input-row">
+                        <select id="todo-category" class="category-select" aria-label="카테고리 선택">
+                            <option value="personal">🏠 일상</option>
+                            <option value="work">💼 업무</option>
+                            <option value="study">📚 공부</option>
+                            <option value="health">🏃 건강</option>
+                            <option value="hobby">🎨 취미</option>
+                        </select>
+                        <input type="text" id="todo-input" placeholder="새로운 할 일을 입력하세요..." maxlength="50" required autocomplete="off">
+                        <button type="submit" class="btn-submit">심기 🌱</button>
+                    </div>
+                </form>
+
+                <!-- Todo Lists -->
+                <div class="todo-lists-container">
+                    <ul id="todo-list" class="todo-list">
+                        <!-- Dynamic items will be injected here -->
+                    </ul>
+                    <div id="empty-state" class="empty-state">
+                        <div class="empty-emoji">🍂</div>
+                        <p class="empty-title">정원이 텅 비어 있습니다.</p>
+                        <p class="empty-subtitle">새로운 할 일을 심어 정원을 가꿔보세요!</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Rename Modal -->
+    <div id="rename-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3>🌱 식물 이름 지어주기</h3>
+            <p>당신의 정성과 정원을 함께할 식물의 이름을 지어주세요.</p>
+            <input type="text" id="input-plant-name" maxlength="12" placeholder="예: 초록이, 쑥쑥이">
+            <div class="modal-actions">
+                <button id="btn-modal-cancel" class="modal-btn secondary">취소</button>
+                <button id="btn-modal-save" class="modal-btn primary">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas for Particle Effects -->
+    <canvas id="particle-canvas" class="particle-canvas"></canvas>
+
+    <footer class="app-footer">
+        <p>© 2026 Todo Garden. 당신의 갓생 정원을 응원합니다. 🌳</p>
+    </footer>
+
+    <!-- App Script -->
+    <script src="app.js"></script>
+</body>
+</html>
